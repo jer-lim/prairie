@@ -8,16 +8,15 @@ class Autoloader {
 	 */
 	public static function loadAll(){
 		$settings=require PRAIRIE_PATH."/config/autoloader.php";
-		$toLoad=$settings["directories"];
-		$files=$settings["files"];
+		$toLoad=$settings["loadOrder"];
 		static::$ignore=$settings["ignore"];
 
-		foreach($toLoad as $directory){
-			static::load($directory);
-		}
-
-		foreach($files as $file){
-			require $file;
+		foreach($toLoad as $loading){
+			if(is_dir($loading)){
+				static::load($loading);
+			}else{
+				require $loading;
+			}
 		}
 	}
 

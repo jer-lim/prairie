@@ -5,11 +5,10 @@ class BaseView extends View {
 	public static $baseTemplate = null;
 
 	public static function getBaseView(){
-		return static::generate(array(), static::$baseTemplate);
+		return static::generate(array(), file_get_contents(APP_PATH . static::$baseTemplate));
 	}
 
 	public static function make($params=array()){
-		echo "test";
 		$baseView=static::getBaseView();
 		$baseParams=array();
 		$baseParams['content']=static::generate($params);

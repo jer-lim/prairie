@@ -8,6 +8,7 @@ class IndexController extends Controller {
 		$GLOBALS['exampleVar'] = "Example global variable called in view";
 		$params = array();
 		$params['testParam'] = "Example parameter passed to view";
+
 		IndexView::make($params);
 	}
 

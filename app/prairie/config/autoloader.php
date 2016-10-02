@@ -4,15 +4,21 @@
  * Below is the list of directories and files to load classes from.
  */
 return array(
-	"directories" => array(
-		PRAIRIE_PATH,
+	"loadOrder" => array(
+		PRAIRIE_PATH . "/controller",
+		PRAIRIE_PATH . "/database",
+		PRAIRIE_PATH . "/flowers",
+		PRAIRIE_PATH . "/logger",
+		PRAIRIE_PATH . "/model",
+		PRAIRIE_PATH . "/router",
+		PRAIRIE_PATH . "/view/View.php",
+		PRAIRIE_PATH . "/view/BaseView.php",
+		APP_PATH."/routes.php",
 		APP_PATH."/classes",
 		APP_PATH."/controller",
 		APP_PATH."/model",
+		APP_PATH."/view/base",
 		APP_PATH."/view",
-	),
-	"files" => array(
-		APP_PATH."/routes.php"
 	),
 	"ignore" => array(
 		PRAIRIE_PATH."/start.php",
