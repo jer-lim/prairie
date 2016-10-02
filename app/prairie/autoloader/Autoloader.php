@@ -7,7 +7,19 @@ class Autoloader {
 	 * Load all files in the config file
 	 */
 	public static function loadAll(){
-		$settings=require PRAIRIE_PATH."/config/autoloader.php";
+		$settings=require PRAIRIE_PATH."/config/autoloader_meadow.php";
+		$toLoad=$settings["loadOrder"];
+		static::$ignore=$settings["ignore"];
+
+		foreach($toLoad as $loading){
+			if(is_dir($loading)){
+				static::load($loading);
+			}else{
+				require $loading;
+			}
+		}
+
+		$settings=require PRAIRIE_PATH."/config/autoloader_user.php";
 		$toLoad=$settings["loadOrder"];
 		static::$ignore=$settings["ignore"];
 
