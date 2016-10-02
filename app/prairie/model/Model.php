@@ -26,22 +26,14 @@ class Model {
 	protected static $primaryKey="id";
 
 	/**
-	 *  Array of arrays of relations. Define a parent-to-child relation with array('var' => 'varName', 'class' => 'className', 'foreignKey' => 'attributeName'). This defines a link from foreignKey in this class to primaryKey in the other class. Access it by $obj->varName.
-	 * @var array
-	 */
-	protected static $relations=array();
-
-	/**
 	 * length of time in seconds to cache
 	 */
-	
 	protected static $cacheTime = 0;
 
 	/**
 	 * whether or not to use cache
 	 * cache is only used when fetching data using exact same queries
 	 */
-	
 	protected static $useCache = true;
 
 	/**
@@ -58,7 +50,6 @@ class Model {
 	/**
 	 * Singleton to chain methods
 	 */
-	
 	protected static $_instance = null;
 
 	public function __construct(){
@@ -78,116 +69,17 @@ class Model {
 		}
 	}
 
-	public function __get($name){
-		foreach(static::$relations as $relation){
-			if($relation['var']==$name){
-				return $relation['class']::getByPk($this->$relation['foreignKey']);
-			}
-		}
-	}
-
-	/**
-	 * Get an array of models matching the criteria.
-	 * @return array
-	 */
-	public static function whereOld(...$args){
-
-		// Use 1.0 way of processing
-//		if(is_array($args[0])){
-			$query=DB::query(static::$dbConfig, static::$table);
-			foreach($args as $arg){
-				$query->where($arg[0],$arg[1],$arg[2]);
-			}
-
-			// Load from cache if not done yet
-			$cacheName = sha1(serialize($query));
-			if(static::$cacheTime > 0 && static::$useCache){
-				$models = Cache::load($cacheName, "/models/" . get_called_class());
-				if($models){
-					return $models;
-				}
-			}
-
-			$results=$query->get();
-
-			$models=array();
-			foreach($results as $result){
-				$calledClass=get_called_class();
-				$model=new $calledClass();
-				$model->originalAttributes=$result;
-
-				foreach($result as $key => $value){
-					$model->$key=$value;
-				}
-
-				array_push($models, $model);
-			}
-
-			if(static::$cacheTime > 0 && static::$useCache){
-				Cache::save($cacheName, static::$cacheTime, $models, "/models/" . get_called_class());
-			}
-
-			return $models;
-/*		}else{ // 2.0
-			var_dump($meadowQuery, $args);
-			if($meadowQuery == null) throw new Exception("MeadowQuery not initialised");
-			$meadowQuery->where($args[0], $args[1], $args[2]);
-			return $this;
-		}
-*/
-	}
-
-	public function whereNew($column, $operator, $value){
-		if($this->meadowQuery == null) throw new Exception("MeadowQuery not initialised");
-		$this->meadowQuery->where($column, $operator, $value);
-		return $this;
-	}
-
-	public function __call($name, $arguments){
-		if($name == "where"){ // whereNew
-			return call_user_func_array(array($this, "whereNew"), $arguments);
-		}
-	}
-
-	public static function __callStatic($name, $arguments){
-		if($name == "where"){ // whereOld
-			return call_user_func_array(array(get_called_class(), "whereOld"), $arguments);
-		}
-	}
-
 	/**
 	 * Get an array of models after processing using the passed in $func. Pass in an anonymous function with 1 parameter to manipulate $query.
 	 * @return array
 	 */
 	public static function query($func = null){
-
-		if($func != null){ // 1.0
-
-			$query=DB::query(static::$dbConfig, static::$table);
-			$results = $func($query);
-
-			$models=array();
-			foreach($results as $result){
-				$calledClass=get_called_class();
-				$model=new $calledClass();
-				$model->originalAttributes=$result;
-
-				foreach($result as $key => $value){
-					$model->$key=$value;
-				}
-
-				array_push($models, $model);
-			}
-
-			return $models;
-		}else{
-			if(static::$_instance === null){
-				$calledClass=get_called_class();
-				static::$_instance = new $calledClass();
-			}
-			static::$_instance->meadowQuery=DB::query(static::$dbConfig, static::$table);
-			return static::$_instance;
+		if(static::$_instance === null){
+			$calledClass=get_called_class();
+			static::$_instance = new $calledClass();
 		}
+		static::$_instance->meadowQuery=DB::query(static::$dbConfig, static::$table);
+		return static::$_instance;
 	}
 
 	/**
@@ -244,6 +136,10 @@ class Model {
 		}
 	}
 
+	/**
+	 * Insert or update model
+	 * @return bool true if succeed
+	 */
 	public function save(){
 		$attributes=$this->serializeAttributes();
 		if(is_null($this->originalAttributes)){
@@ -263,6 +159,7 @@ class Model {
 
 			//insert new record
 			DB::query(static::$dbConfig, static::$table)->insert($attributeList,array($attributes));
+			return true;
 		}else if($attributes!=$this->originalAttributes){
 			//update record
 			//get primary key
@@ -275,9 +172,13 @@ class Model {
 			}
 
 			$query->update($attributes);
+			return true;
 		}
 	}
 
+	/**
+	 * Delete model
+	 */
 	public function delete(){
 		if(!is_array(static::$primaryKey)) $primaryKey=array(static::$primaryKey);
 		else $primaryKey=static::$primaryKey;
@@ -307,7 +208,7 @@ class Model {
 		return $this;
 	}
 
-	public function get($parameters=array(),$start=0,$count=0){
+	public function get($skip = 0, $count = 0){
 		if($this->meadowQuery == null) throw new Exception("MeadowQuery not initialised");
 
 		// Load from cache if not done yet
@@ -320,7 +221,7 @@ class Model {
 			}
 		}
 		// Continue if no cache
-		$results = $this->meadowQuery->get($parameters, $start, $count);
+		$results = $this->meadowQuery->get("*", $skip, $count);
 
 		$models=array();
 		foreach($results as $result){
@@ -340,6 +241,20 @@ class Model {
 
 		$this->clearQuery();
 		return $models;
+	}
+
+	public function getFirst(){
+		return $this->get(1)[0];
+	}
+
+	/**
+	 * Get an array of models matching the criteria.
+	 * @return array
+	 */
+	public function where($column, $operator, $value){
+		if($this->meadowQuery == null) throw new Exception("MeadowQuery not initialised");
+		$this->meadowQuery->where($column, $operator, $value);
+		return $this;
 	}
 
 	public function insert(array $columns=null,array $values){
@@ -372,5 +287,16 @@ class Model {
 	
 	public static function setCache(bool $isOn){
 		static::$useCache = $isOn;
+	}
+
+	/**
+	 * Reset back to original state
+	 */
+	public function reset(){
+		if($this->originalAttributes != null){
+			foreach($this->originalAttributes as $oa => $value){
+				$this->$oa = $value;
+			}
+		}
 	}
 }

@@ -9,10 +9,4 @@ return array(
 		"password" => "password",
 		"database" => "db",
 	),
-	"test" => array(
-		"server" => "localhost",
-		"username" => "prairie_tester",
-		"password" => "rOsOmipe",
-		"database" => "prairie",
-	),
 );
