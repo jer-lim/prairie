@@ -8,10 +8,10 @@ class BaseView extends View {
 		return static::generate(array(), file_get_contents(APP_PATH . static::$baseTemplate));
 	}
 
-	public static function make($params=array()){
-		$baseView=static::getBaseView();
-		$baseParams=array();
-		$baseParams['content']=static::generate($params);
+	public static function make($params = array()){
+		$baseView = static::getBaseView();
+		$baseParams = array();
+		$baseParams['content'] = static::generate($params);
 		echo View::generate($baseParams,$baseView);
 	}
 }

@@ -2,38 +2,38 @@
 
 class Route {
 
-	private static $routes=array();
+	private static $routes = array();
 
-	public static function get($route,$controller){
-		static::addRoute($route,$controller,"GET");
+	public static function get($route, $controller){
+		static::addRoute($route, $controller, "GET");
 	}
 
-	public static function post($route,$controller){
-		static::addRoute($route,$controller,"POST");
+	public static function post($route, $controller){
+		static::addRoute($route, $controller, "POST");
 	}
 
-	public static function put($route,$controller){
-		static::addRoute($route,$controller,"PUT");
+	public static function put($route, $controller){
+		static::addRoute($route, $controller, "PUT");
 	}
 
-	public static function patch($route,$controller){
-		static::addRoute($route,$controller,"PATCH");
+	public static function patch($route, $controller){
+		static::addRoute($route, $controller, "PATCH");
 	}
 
-	public static function delete($route,$controller){
-		static::addRoute($route,$controller,"DELETE");
+	public static function delete($route, $controller){
+		static::addRoute($route, $controller, "DELETE");
 	}
 
 	public static function head($route,$controller){
-		static::addRoute($route,$controller,"HEAD");
+		static::addRoute($route, $controller, "HEAD");
 	}
 
 	public static function options($route,$controller){
-		static::addRoute($route,$controller,"OPTIONS");
+		static::addRoute($route, $controller, "OPTIONS");
 	}
 
 	public static function cli($route,$controller){
-		static::addRoute($route,$controller,"CLI");
+		static::addRoute($route, $controller, "CLI");
 	}
 
 	/**
@@ -42,37 +42,37 @@ class Route {
 	 * @param  string $route      
 	 * @param  string $controller Class::method
 	 */
-	public static function bind($verbs,$route,$controller){
+	public static function bind($verbs, $route, $controller){
 		foreach($verbs as $verb){
-			static::addRoute($route,$controller,$verb);
+			static::addRoute($route, $controller, $verb);
 		}
 	}
 	
-	private static function addRoute($route,$controller,$method){
-		$r=new StdClass();
-		$r->route=explode("/", $route);
-		$r->controller=$controller;
-		$r->method=$method;
+	private static function addRoute($route, $controller, $method){
+		$r = new StdClass();
+		$r->route = explode("/", $route);
+		$r->controller = $controller;
+		$r->method = $method;
 		array_push(static::$routes, $r);
 	}
 
 	public static function handleRoute(){
 		if(isset($_SERVER['argc'])) $rawPath = $_SERVER['argv'][1]; // CLI
-		else $rawPath=$_SERVER['REQUEST_URI'];
-		if(strstr($rawPath, "?")) $rawPath=substr($rawPath, 0, strpos($rawPath, "?"));
-		$requestedPath=explode("/", $rawPath);
-		$variables=array();
+		else $rawPath = $_SERVER['REQUEST_URI'];
+		if(strstr($rawPath, "?")) $rawPath = substr($rawPath, 0, strpos($rawPath, "?"));
+		$requestedPath = explode("/", $rawPath);
+		$variables = array();
 
-		$routes=static::$routes;
-		for($i=0;$i<count($requestedPath);++$i){
+		$routes = static::$routes;
+		for($i = 0; $i < count($requestedPath); ++$i){
 			foreach($routes as $key => $route){
-				$fullPath=$route->route;
-				if($requestedPath[$i]!==$fullPath[$i] || count($requestedPath)!==count($fullPath)){
+				$fullPath = $route->route;
+				if($requestedPath[$i] !== $fullPath[$i] || count($requestedPath) !== count($fullPath)){
 					if(!static::isPlaceholder($fullPath[$i])){
 						unset($routes[$key]);
 					}else{
-						$varName=str_replace(array("{","}"), "", $fullPath[$i]);
-						$variables[$varName]=$requestedPath[$i];
+						$varName = str_replace(array("{","}"), "", $fullPath[$i]);
+						$variables[$varName] = $requestedPath[$i];
 					}
 				}
 			}
@@ -83,11 +83,11 @@ class Route {
 			Error404::make(array("route" => $rawPath));
 		}else{
 			//call appropriate function
-			$found=false;
+			$found = false;
 			foreach($routes as $route){
 				if(!isset($_SERVER['argc'])){
-					if($route->method===$_SERVER['REQUEST_METHOD'] && $_SERVER['REQUEST_METHOD'] !== "CLI"){
-						$found=true;
+					if($route->method === $_SERVER['REQUEST_METHOD'] && $_SERVER['REQUEST_METHOD'] !== "CLI"){
+						$found = true;
 						if(empty($variables)){
 							call_user_func($route->controller);
 						}else{
@@ -97,7 +97,7 @@ class Route {
 					}
 				}else{
 					if($route->method === "CLI"){
-						$found=true;
+						$found = true;
 						if(empty($variables)){
 							call_user_func($route->controller);
 						}else{
@@ -115,7 +115,7 @@ class Route {
 	}
 
 	private static function isPlaceholder($string){
-		if(preg_match("/{.+}/", $string)===1) return true;
+		if(preg_match("/{.+}/", $string) === 1) return true;
 		else return false;
 	}
 }

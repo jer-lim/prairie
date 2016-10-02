@@ -2,10 +2,10 @@
 
 class MeadowQuery {
 	private $dbConfig;
-	private $table=null;
-	private $where=array();
-	private $orderBy=array();
-	private $queryParameters=array();
+	private $table = null;
+	private $where = array();
+	private $orderBy = array();
+	private $queryParameters = array();
 
 	function __construct($dbName){
 		$this->dbConfig = $dbName;
@@ -17,7 +17,7 @@ class MeadowQuery {
 	 * @return MeadowQuery $this
 	 */
 	public function table($table){
-		$this->table=$table;
+		$this->table = $table;
 		return $this;
 	}
 
@@ -29,10 +29,10 @@ class MeadowQuery {
 	 * @return MeadowQuery $this
 	 */
 	public function where($column, $operator, $value){
-		$clause=new StdClass();
-		$clause->column=$column;
-		$clause->operator=$operator;
-		$clause->value=$value;
+		$clause = new StdClass();
+		$clause->column = $column;
+		$clause->operator = $operator;
+		$clause->value = $value;
 		array_push($this->where, $clause);
 		return $this;
 	}
@@ -44,10 +44,10 @@ class MeadowQuery {
 	 * @return MeadowQuery $this
 	 */
 	public function orderBy($column, $sort){
-		$clause=new StdClass();
-		$clause->column=$column;
-		if(strtoupper($sort)==="ASC" || strtoupper($sort)==="DESC"){
-			$clause->sort=strtoupper($sort);
+		$clause = new StdClass();
+		$clause->column = $column;
+		if(strtoupper($sort) === "ASC" || strtoupper($sort) === "DESC"){
+			$clause->sort = strtoupper($sort);
 		}else{
 			throw new Exception('$sort can only be "ASC" or "DESC"');
 		}
@@ -62,47 +62,47 @@ class MeadowQuery {
 	 * @param  integer $count number of rows to fetch
 	 * @return array
 	 */
-	public function get($parameters=array(),$start=0,$count=0){
+	public function get($parameters = array(), $start=0, $count=0){
 
 		//put operation
-		$queryString="SELECT ";
+		$queryString = "SELECT ";
 
 		if(empty($parameters) || $parameters === "*"){
-			$queryString.="* ";
+			$queryString .= "* ";
 		}else{
-			$first=true;
+			$first = true;
 			//put columns
-			$queryString.=$this->formatParameterString($parameters)." ";
+			$queryString .= $this->formatParameterString($parameters) . " ";
 		}
 
 		//put FROM table
-		$queryString.="FROM `".$this->table."` ";
+		$queryString .= "FROM `" . $this->table . "` ";
 
 		//put WHERE
-		$queryString.=$this->getWhereQueryString();
+		$queryString .= $this->getWhereQueryString();
 
 		//put ORDER BY
 		if(!empty($this->orderBy)){
-			$queryString.="ORDER BY ";
-			$first=true;
+			$queryString .= "ORDER BY ";
+			$first = true;
 			foreach($this->orderBy as $clause){
-				if(!$first) $queryString.=", ";
-				$first=false;
-				$queryString.="`".$clause->column."` ".$clause->sort;
+				if(!$first) $queryString .= ", ";
+				$first = false;
+				$queryString .= "`" . $clause->column . "` " . $clause->sort;
 			}
-			$queryString.=" ";
+			$queryString .= " ";
 		}
 
-		if($count!=0){
-			$queryString.="LIMIT ".$start.", ".$count;
-		}else if($start!=0 && $count===0){
-			$queryString.="LIMIT ".$start;
+		if($count != 0){
+			$queryString .= "LIMIT " . $start . ", " . $count;
+		}else if($start != 0 && $count === 0){
+			$queryString .= "LIMIT " . $start;
 		}
 
-		$db=DB::getDBO($this->dbConfig);
-		$query=$db->prepare($queryString);
+		$db = DB::getDBO($this->dbConfig);
+		$query = $db->prepare($queryString);
 		$query->execute($this->queryParameters);
-		$result=$query->fetchAll(PDO::FETCH_ASSOC);
+		$result = $query->fetchAll(PDO::FETCH_ASSOC);
 		return $result;
 	}
 
@@ -112,39 +112,39 @@ class MeadowQuery {
 	 * @param  array $values Array of rows, where each row is an array of values that corresponds to the columns defined
 	 * @return MeadowQuery $this
 	 */
-	public function insert(array $columns=null,array $values){
-		$queryString="INSERT INTO `".$this->table."` ";
+	public function insert(array $columns=null, array $values){
+		$queryString = "INSERT INTO `" . $this->table . "` ";
 
 		//put columns
-		if($columns!==null){
-			$queryString.="(".$this->formatParameterString($columns).") ";
+		if($columns !== null){
+			$queryString .= "(" . $this->formatParameterString($columns) . ") ";
 		}
 
 		//put values
-		$queryString.="VALUES ";
+		$queryString .= "VALUES ";
 		//if inserting a single row, nest the values in another array
-		if((array)current($values)!=current($values)){
-			$values=array($values);
+		if((array)current($values) != current($values)){
+			$values = array($values);
 		}
 
-		$first=true;
+		$first = true;
 		foreach($values as $row){
-			if(!$first) $queryString.=", ";
-			$first=false;
+			if(!$first) $queryString .= ", ";
+			$first = false;
 
-			$queryString.="(";
-			$first2=true;
+			$queryString .= "(";
+			$first2 = true;
 			foreach($row as $field){
-				if(!$first2) $queryString.=",";
-				$first2=false;
-				$queryString.="?";
+				if(!$first2) $queryString .= ",";
+				$first2 = false;
+				$queryString .= "?";
 				$this->addQueryParameter($field);
 			}
-			$queryString.=")";
+			$queryString .= ")";
 		}
 
-		$db=DB::getDBO($this->dbConfig);
-		$query=$db->prepare($queryString);
+		$db = DB::getDBO($this->dbConfig);
+		$query = $db->prepare($queryString);
 		$query->execute($this->queryParameters);
 
 		return $this;
@@ -156,19 +156,19 @@ class MeadowQuery {
 	 * @return MeadowQuery $this
 	 */
 	public function update($args){
-		$queryString="UPDATE `".$this->table."` SET ";
+		$queryString = "UPDATE `" . $this->table . "` SET ";
 		
-		$first=true;
+		$first = true;
 		foreach($args as $key => $value){
-			if(!$first) $queryString.=", ";
-			$first=false;
-			$queryString.="`".$key."` = ?";
+			if(!$first) $queryString .= ", ";
+			$first = false;
+			$queryString .= "`" . $key . "` = ?";
 			$this->addQueryParameter($value);
 		}
-		$queryString.=" ";
-		$queryString.=$this->getWhereQueryString();
-		$db=DB::getDBO($this->dbConfig);
-		$query=$db->prepare($queryString);
+		$queryString .= " ";
+		$queryString .= $this->getWhereQueryString();
+		$db = DB::getDBO($this->dbConfig);
+		$query = $db->prepare($queryString);
 		$query->execute($this->queryParameters);
 
 		return $this;
@@ -180,10 +180,10 @@ class MeadowQuery {
 	 * @return MeadowQuery $this
 	 */
 	public function delete(){
-		$queryString="DELETE FROM `".$this->table."` ".$this->getWhereQueryString();
+		$queryString = "DELETE FROM `" . $this->table . "` " . $this->getWhereQueryString();
 
-		$db=DB::getDBO($this->dbConfig);
-		$query=$db->prepare($queryString);
+		$db = DB::getDBO($this->dbConfig);
+		$query = $db->prepare($queryString);
 		$query->execute($this->queryParameters);
 
 		return $this;
@@ -203,12 +203,12 @@ class MeadowQuery {
 	 * @return string
 	 */
 	private function formatParameterString($parameters){
-		$str="";
-		$first=true;
+		$str = "";
+		$first = true;
 		foreach($parameters as $parameter){
-			if(!$first) $str.=", ";
-			$first=false;
-			$str.="`".$parameter."`";
+			if(!$first) $str .= ", ";
+			$first = false;
+			$str .= "`" . $parameter . "`";
 		}
 		return $str;
 	}
@@ -218,14 +218,14 @@ class MeadowQuery {
 	 * @return string
 	 */
 	private function getWhereQueryString(){
-		$queryString="";
+		$queryString = "";
 		if(!empty($this->where)){
-			$queryString.="WHERE ";
-			$first=true;
+			$queryString .= "WHERE ";
+			$first = true;
 			foreach($this->where as $clause){
-				if(!$first) $queryString.="AND ";
-				$first=false;
-				$queryString.="`".$clause->column."` ".$clause->operator." ? ";
+				if(!$first) $queryString .= "AND ";
+				$first = false;
+				$queryString .= "`" . $clause->column . "` " . $clause->operator . " ? ";
 				$this->addQueryParameter($clause->value);
 			}
 		}

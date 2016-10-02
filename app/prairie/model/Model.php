@@ -78,7 +78,7 @@ class Model {
 			$calledClass=get_called_class();
 			static::$_instance = new $calledClass();
 		}
-		static::$_instance->meadowQuery=DB::query(static::$dbConfig, static::$table);
+		static::$_instance->meadowQuery = DB::query(static::$dbConfig, static::$table);
 		return static::$_instance;
 	}
 
@@ -91,16 +91,16 @@ class Model {
 		$args=func_get_args();
 		//Number of arguments passed does not match number of attributes in primary key
 
-		if(!is_array(static::$primaryKey)) $primaryKey=array(static::$primaryKey);
-		else $primaryKey=static::$primaryKey;
+		if(!is_array(static::$primaryKey)) $primaryKey = array(static::$primaryKey);
+		else $primaryKey = static::$primaryKey;
 
 		if(count($args) != count($primaryKey)){
-			throw new Exception("Primary key consists of ".count($primaryKey)." attributes, ".count($args)." passed.");
+			throw new Exception("Primary key consists of " . count($primaryKey) . " attributes, " . count($args) . " passed.");
 		}else{
-			$query=DB::query(static::$dbConfig, static::$table);
+			$query = DB::query(static::$dbConfig, static::$table);
 			foreach($primaryKey as $attribute){
-				if(is_string(current($args))) $comparator="LIKE";
-				else if(is_numeric(current($args))) $comparator="=";
+				if(is_string(current($args))) $comparator = "LIKE";
+				else if(is_numeric(current($args))) $comparator = "=";
 				$query->where($attribute, $comparator, current($args));
 				next($args);
 			}
@@ -114,15 +114,15 @@ class Model {
 				}
 			}
 
-			$result=$query->get(static::$attributes,1);
+			$result = $query->get(static::$attributes,1);
 			if($result){
 
-				$calledClass=get_called_class();
-				$model=new $calledClass();
-				$model->originalAttributes=$result[0];
+				$calledClass = get_called_class();
+				$model = new $calledClass();
+				$model->originalAttributes = $result[0];
 
 				foreach($result[0] as $key => $value){
-					$model->$key=$value;
+					$model->$key = $value;
 				}
 
 				if(static::$cacheTime > 0 && static::$useCache){
@@ -141,34 +141,34 @@ class Model {
 	 * @return bool true if succeed
 	 */
 	public function save(){
-		$attributes=$this->serializeAttributes();
+		$attributes = $this->serializeAttributes();
 		if(is_null($this->originalAttributes)){
 
 			//remove nulls
 			$attributeList = static::$attributes;
-			$i=0;
+			$i = 0;
 
-			for($i=0;$i<sizeof($attributeList);){
+			for($i = 0; $i < sizeof($attributeList);){
 				if(is_null($attributes[$attributeList[$i]])){
 					unset($attributes[$attributeList[$i]]);
-					array_splice($attributeList,$i,1);
+					array_splice($attributeList, $i, 1);
 				}else{
 					$i++;
 				}
 			}
 
 			//insert new record
-			DB::query(static::$dbConfig, static::$table)->insert($attributeList,array($attributes));
+			DB::query(static::$dbConfig, static::$table)->insert($attributeList, array($attributes));
 			return true;
-		}else if($attributes!=$this->originalAttributes){
+		}else if($attributes != $this->originalAttributes){
 			//update record
 			//get primary key
-			if(!is_array(static::$primaryKey)) $primaryKey=array(static::$primaryKey);
-			else $primaryKey=static::$primaryKey;
+			if(!is_array(static::$primaryKey)) $primaryKey = array(static::$primaryKey);
+			else $primaryKey = static::$primaryKey;
 
-			$query=DB::query(static::$dbConfig, static::$table);
+			$query = DB::query(static::$dbConfig, static::$table);
 			foreach($primaryKey as $attribute){
-				$query->where($attribute,"=",$this->$attribute);
+				$query->where($attribute, "=", $this->$attribute);
 			}
 
 			$query->update($attributes);
@@ -180,20 +180,20 @@ class Model {
 	 * Delete model
 	 */
 	public function delete(){
-		if(!is_array(static::$primaryKey)) $primaryKey=array(static::$primaryKey);
-		else $primaryKey=static::$primaryKey;
+		if(!is_array(static::$primaryKey)) $primaryKey = array(static::$primaryKey);
+		else $primaryKey = static::$primaryKey;
 
 		$query = DB::query(static::$dbConfig, static::$table);
 		foreach($primaryKey as $attribute){
-			$query->where($attribute,"=",$this->$attribute);
+			$query->where($attribute, "=", $this->$attribute);
 		}
 		$query->delete();
 	}
 
 	protected function serializeAttributes(){
-		$arr=array();
+		$arr = array();
 		foreach(static::$attributes as $attribute){
-			$arr[$attribute]=$this->$attribute;
+			$arr[$attribute] = $this->$attribute;
 		}
 
 		return $arr;
@@ -223,14 +223,14 @@ class Model {
 		// Continue if no cache
 		$results = $this->meadowQuery->get("*", $skip, $count);
 
-		$models=array();
+		$models = array();
 		foreach($results as $result){
-			$calledClass=get_called_class();
-			$model=new $calledClass();
-			$model->originalAttributes=$result;
+			$calledClass = get_called_class();
+			$model = new $calledClass();
+			$model->originalAttributes = $result;
 
 			foreach($result as $key => $value){
-				$model->$key=$value;
+				$model->$key = $value;
 			}
 
 			array_push($models, $model);

@@ -6,6 +6,6 @@ if(!isset($argv[1]) && isset($argc)){
 }
 
 define("PRAIRIE_PATH", dirname(__FILE__));
-require PRAIRIE_PATH."/start.php";
+require PRAIRIE_PATH . "/start.php";
 
 exit();

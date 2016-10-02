@@ -1,3 +1,3 @@
 <?php
 
-Route::get("/","IndexController::showPage");
+Route::get("/", "IndexController::showPage");

@@ -2,14 +2,14 @@
 
 class Autoloader {
 
-	private static $ignore=array();
+	private static $ignore = array();
 	/**
 	 * Load all files in the config file
 	 */
 	public static function loadAll(){
-		$settings=require PRAIRIE_PATH."/config/autoloader_meadow.php";
-		$toLoad=$settings["loadOrder"];
-		static::$ignore=$settings["ignore"];
+		$settings = require PRAIRIE_PATH . "/config/autoloader_meadow.php";
+		$toLoad = $settings["loadOrder"];
+		static::$ignore = $settings["ignore"];
 
 		foreach($toLoad as $loading){
 			if(is_dir($loading)){
@@ -19,9 +19,9 @@ class Autoloader {
 			}
 		}
 
-		$settings=require PRAIRIE_PATH."/config/autoloader_user.php";
-		$toLoad=$settings["loadOrder"];
-		static::$ignore=$settings["ignore"];
+		$settings = require PRAIRIE_PATH . "/config/autoloader_user.php";
+		$toLoad = $settings["loadOrder"];
+		static::$ignore = $settings["ignore"];
 
 		foreach($toLoad as $loading){
 			if(is_dir($loading)){
@@ -34,12 +34,12 @@ class Autoloader {
 
 	/**
 	 * Recursively load the directory
-	 * @param  string $directory
+	 * @param string $directory
 	 */
 	public static function load($directory){
-		$directoryScan=array_diff(scandir($directory), array('..', '.'));
+		$directoryScan = array_diff(scandir($directory), array('..', '.'));
 		foreach($directoryScan as $entry){
-			$file=$directory."/".$entry;
+			$file = $directory . "/" . $entry;
 			if(is_dir($file) && !in_array($file, static::$ignore)){
 				static::load($file);
 			}else if(!in_array($file, static::$ignore)){
