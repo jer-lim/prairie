@@ -88,13 +88,21 @@ class Route {
 				if(!isset($_SERVER['argc'])){
 					if($route->method===$_SERVER['REQUEST_METHOD'] && $_SERVER['REQUEST_METHOD'] !== "CLI"){
 						$found=true;
-						call_user_func($route->controller,$variables);
+						if(empty($variables)){
+							call_user_func($route->controller);
+						}else{
+							call_user_func_array($route->controller, $variables);
+						}
 						break;
 					}
 				}else{
 					if($route->method === "CLI"){
 						$found=true;
-						call_user_func($route->controller,$variables);
+						if(empty($variables)){
+							call_user_func($route->controller);
+						}else{
+							call_user_func_array($route->controller, $variables);
+						}
 						break;
 					}
 				}
