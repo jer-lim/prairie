@@ -1,10 +1,15 @@
 <?php
 
 class MeadowQuery {
+	private $dbConfig;
 	private $table=null;
 	private $where=array();
 	private $orderBy=array();
 	private $queryParameters=array();
+
+	function __construct($dbName){
+		$this->dbConfig = $dbName;
+	}
 
 	/**
 	 * Set table to query
@@ -94,7 +99,7 @@ class MeadowQuery {
 			$queryString.="LIMIT ".$start;
 		}
 
-		$db=DB::getDBO();
+		$db=DB::getDBO($this->dbConfig);
 		$query=$db->prepare($queryString);
 		$query->execute($this->queryParameters);
 		$result=$query->fetchAll(PDO::FETCH_ASSOC);
@@ -138,7 +143,7 @@ class MeadowQuery {
 			$queryString.=")";
 		}
 
-		$db=DB::getDBO();
+		$db=DB::getDBO($this->dbConfig);
 		$query=$db->prepare($queryString);
 		$query->execute($this->queryParameters);
 
@@ -162,7 +167,7 @@ class MeadowQuery {
 		}
 		$queryString.=" ";
 		$queryString.=$this->getWhereQueryString();
-		$db=DB::getDBO();
+		$db=DB::getDBO($this->dbConfig);
 		$query=$db->prepare($queryString);
 		$query->execute($this->queryParameters);
 
@@ -177,7 +182,7 @@ class MeadowQuery {
 	public function delete(){
 		$queryString="DELETE FROM `".$this->table."` ".$this->getWhereQueryString();
 
-		$db=DB::getDBO();
+		$db=DB::getDBO($this->dbConfig);
 		$query=$db->prepare($queryString);
 		$query->execute($this->queryParameters);
 

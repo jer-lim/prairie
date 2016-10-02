@@ -8,6 +8,12 @@ class Model {
 	protected static $table;
 
 	/**
+	 * Name of the database config
+	 * @var string
+	 */
+	protected static $dbConfig;
+
+	/**
 	 * Array of attributes
 	 * @var array
 	 */
@@ -88,7 +94,7 @@ class Model {
 
 		// Use 1.0 way of processing
 //		if(is_array($args[0])){
-			$query=DB::query(static::$table);
+			$query=DB::query(static::$dbConfig, static::$table);
 			foreach($args as $arg){
 				$query->where($arg[0],$arg[1],$arg[2]);
 			}
@@ -157,7 +163,7 @@ class Model {
 
 		if($func != null){ // 1.0
 
-			$query=DB::query(static::$table);
+			$query=DB::query(static::$dbConfig, static::$table);
 			$results = $func($query);
 
 			$models=array();
@@ -179,7 +185,7 @@ class Model {
 				$calledClass=get_called_class();
 				static::$_instance = new $calledClass();
 			}
-			static::$_instance->meadowQuery=DB::query(static::$table);
+			static::$_instance->meadowQuery=DB::query(static::$dbConfig, static::$table);
 			return static::$_instance;
 		}
 	}
@@ -199,7 +205,7 @@ class Model {
 		if(count($args) != count($primaryKey)){
 			throw new Exception("Primary key consists of ".count($primaryKey)." attributes, ".count($args)." passed.");
 		}else{
-			$query=DB::query(static::$table);
+			$query=DB::query(static::$dbConfig, static::$table);
 			foreach($primaryKey as $attribute){
 				if(is_string(current($args))) $comparator="LIKE";
 				else if(is_numeric(current($args))) $comparator="=";
@@ -256,14 +262,14 @@ class Model {
 			}
 
 			//insert new record
-			DB::query(static::$table)->insert($attributeList,array($attributes));
+			DB::query(static::$dbConfig, static::$table)->insert($attributeList,array($attributes));
 		}else if($attributes!=$this->originalAttributes){
 			//update record
 			//get primary key
 			if(!is_array(static::$primaryKey)) $primaryKey=array(static::$primaryKey);
 			else $primaryKey=static::$primaryKey;
 
-			$query=DB::query(static::$table);
+			$query=DB::query(static::$dbConfig, static::$table);
 			foreach($primaryKey as $attribute){
 				$query->where($attribute,"=",$this->$attribute);
 			}
@@ -276,11 +282,10 @@ class Model {
 		if(!is_array(static::$primaryKey)) $primaryKey=array(static::$primaryKey);
 		else $primaryKey=static::$primaryKey;
 
-		$query = DB::query(static::$table);
+		$query = DB::query(static::$dbConfig, static::$table);
 		foreach($primaryKey as $attribute){
 			$query->where($attribute,"=",$this->$attribute);
 		}
-		var_dump($query);
 		$query->delete();
 	}
 

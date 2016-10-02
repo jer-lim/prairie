@@ -3,8 +3,16 @@
  * Config file for DB
  */
 return array(
-	"server" => "localhost",
-	"username" => "sqluser",
-	"password" => "password",
-	"database" => "db"
+	"default" => array(
+		"server" => "localhost",
+		"username" => "sqluser",
+		"password" => "password",
+		"database" => "db",
+	),
+	"test" => array(
+		"server" => "localhost",
+		"username" => "prairie_tester",
+		"password" => "rOsOmipe",
+		"database" => "prairie",
+	),
 );
