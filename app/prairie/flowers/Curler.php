@@ -27,7 +27,7 @@ class Curler {
 		if(!empty($opts)){
 			$url .= "?";
 			foreach($opts as $name => $val){
-				$url .= "&" . $name . "=" . $val;
+				$url .= "&" . $name . "=" . urlencode($val);
 			}
 		}
 		
@@ -116,7 +116,7 @@ class Curler {
 		if(!empty($opts)){
 			$url .= "?";
 			foreach($opts as $name => $val){
-				$url .= "&" . $name . "=" . $val;
+				$url .= "&" . $name . "=" . urlencode($val);
 			}
 		}
 
