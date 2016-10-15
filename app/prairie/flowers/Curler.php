@@ -24,7 +24,7 @@ class Curler {
 		$id = 0;
 		$curly[$id] = curl_init();
 
-		if(!empty($array)){
+		if(!empty($opts)){
 			$url .= "?";
 			foreach($opts as $name => $val){
 				$url .= "&" . $name . "=" . $val;
@@ -113,7 +113,7 @@ class Curler {
 	public function addGet($url, $opts = array(), $curlOpts = array()){
 		$this->curly[$this->id] = curl_init();
 
-		if(!empty($array)){
+		if(!empty($opts)){
 			$url .= "?";
 			foreach($opts as $name => $val){
 				$url .= "&" . $name . "=" . $val;
